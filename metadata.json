@@ -1,0 +1,6 @@
+{
+  "name": "IKEF Futbalo Platform",
+  "description": "Central digital hub for the Futbala Sekcio de IKEF (International Esperanto Football Section) connecting players, coaches, referees, and enthusiasts globally.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
