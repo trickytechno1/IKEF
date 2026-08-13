@@ -45,11 +45,11 @@ export default function Footer() {
                 <ExternalLink className="w-3 h-3 opacity-60" />
               </a>
               <a 
-                href="mailto:futbalo@ikef.org" 
+                href="mailto:esperantofk@gmail.com" 
                 className="inline-flex items-center gap-1.5 hover:text-green-700 transition-colors uppercase tracking-wider text-[10px]"
               >
                 <Mail className="w-3.5 h-3.5 text-green-700" />
-                futbalo@ikef.org
+                esperantofk@gmail.com
               </a>
             </div>
           </div>
