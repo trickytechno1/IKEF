@@ -2,7 +2,7 @@ export interface VocabItem {
   id: number;
   termEo: string;
   termEn: string;
-  category: 'Taktiko' | 'Tekniko' | 'Rolo' | 'Organizo' | 'Ekipaĵo' | 'Reguloj' | 'Evento';
+  category: string;
   definitionEo?: string;
   exampleEo?: string;
 }
@@ -30,7 +30,7 @@ export interface OpportunityItem {
   titleEn: string;
   organization: string;
   location: string;
-  type: 'Trial' | 'Contract' | 'Scholarship' | 'Exchange';
+  type: 'Trial' | 'Contract' | 'Scholarship' | 'Exchange' | 'Collaborator';
   typeEo: string;
   descriptionEo: string;
   descriptionEn: string;
@@ -53,264 +53,666 @@ export interface EventItem {
   attendeesCount: number;
 }
 
-// 30+ Football vocabulary words
+// Officially Corrected Football Vocabulary (Fakaj Kategorioj de la Futbala Vortaro)
 export const INITIAL_VOCABULARY: VocabItem[] = [
+  // 1. Bazaj Futbalaj Terminoj (Basic Terms)
   {
     id: 1,
-    termEo: 'Golo',
-    termEn: 'Goal',
-    category: 'Taktiko',
-    definitionEo: 'Pilkpaserigo trans la golevidentan linion en la kontraŭulan reton.',
-    exampleEo: 'La striketo pafis mirindan golon de 25 metroj!'
+    termEo: 'Futbalo',
+    termEn: 'Football / Soccer',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La sporto mem; ludo inter du dekunuanaj teamoj per ronda pilko.',
+    exampleEo: 'Futbalo estas la plej populara sporto en la mondo.'
   },
   {
     id: 2,
-    termEo: 'Paso',
-    termEn: 'Pass',
-    category: 'Tekniko',
-    definitionEo: 'Pilkdissendo al samteamo.',
-    exampleEo: 'Lerta paso tra la defenda linio kreis la ŝancon.'
+    termEo: 'Futbalisto',
+    termEn: 'Footballer / Player',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'Profesionulo aŭ amatoro, kiu ludas futbalon.',
+    exampleEo: 'Nia kluba futbalisto bone trejnis por la sekva konkurso.'
   },
   {
     id: 3,
-    termEo: 'Defendo',
-    termEn: 'Defense',
-    category: 'Taktiko',
-    definitionEo: 'La taktika organizo por malebligi al la kontraŭulo skori golojn.',
-    exampleEo: 'Nia defendo restis trankvila kaj forta dum la tuta matĉo.'
+    termEo: 'Futbalteamo',
+    termEn: 'Football team',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'Grupo de ludantoj kune konkurantaj sub unu nomo.',
+    exampleEo: 'La futbalteamo unuanime venkis en la amika matĉo.'
   },
   {
     id: 4,
-    termEo: 'Striketo',
-    termEn: 'Striker',
-    category: 'Rolo',
-    definitionEo: 'Antaŭa atakanto kies ĉefa tasko estas skori golojn.',
-    exampleEo: 'La rapidpieda striketo jam trafis 15 golojn ĉi-sezone.'
+    termEo: 'Futbalklubo',
+    termEn: 'Football club',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La organiza aŭ jura strukturo malantaŭ la teamoj, stadiono kaj asocio.',
+    exampleEo: 'IKEF estas tutmonda futbalklubo por Esperanto-parolantoj.'
   },
   {
     id: 5,
-    termEo: 'Arbitraciisto',
-    termEn: 'Referee',
-    category: 'Rolo',
-    definitionEo: 'La oficisto prizorganta la respekton de la futbalaj reguloj dum matĉo.',
-    exampleEo: 'La arbitraciisto fajfis la matĉkomencon je la 15:00 horo.'
+    termEo: 'Stadiono',
+    termEn: 'Stadium',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La tuta spaco enhavanta la futbalan kampon, la tribunojn por spektantoj kaj la ceterajn servajzojn.',
+    exampleEo: 'La nova stadiono povas gastigi 50 000 spektantojn.'
   },
   {
     id: 6,
-    termEo: 'Trejnisto',
-    termEn: 'Coach',
-    category: 'Rolo',
-    definitionEo: 'La teknika gvidanto respondeca pri taktiko, fiziko kaj teamformado.',
-    exampleEo: 'La trejnisto klarigis la novan forman Taktikon 4-3-3.'
+    termEo: 'Trejnado',
+    termEn: 'Training / Practice',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'Praktika procezo por plibonigi fizikajn kaj taktikajn kapablojn.',
+    exampleEo: 'Ĉiutaga trejnado helpas al ludantoj atingi pinton de sia rendimento.'
   },
   {
     id: 7,
-    termEo: 'Ekipo',
-    termEn: 'Team',
-    category: 'Organizo',
-    definitionEo: 'Grupo de 11 ludantoj kunbatalantaj sur la ludejo.',
-    exampleEo: 'Nia internacia ekipo konsistas el ludantoj de 8 landoj.'
+    termEo: 'Matĉo',
+    termEn: 'Match',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'Oficiala konkurso inter du teamoj daŭranta kutime 90 minutojn.',
+    exampleEo: 'La matĉo daŭris 90 minutojn plus kroma tempo.'
   },
   {
     id: 8,
-    termEo: 'Stadiono',
-    termEn: 'Stadium',
-    category: 'Ekipaĵo',
-    definitionEo: 'Sporta konstruaĵo kun futbalejo kaj spektantejoj.',
-    exampleEo: 'La matĉo okazos en la ĉefa urba stadiono.'
+    termEo: 'Pilko',
+    termEn: 'Ball',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La sfera objekto, el ledo aŭ sinteza materialo, kiun oni devas enigi en la golejon.',
+    exampleEo: 'La pilko glite trapasis la gollinion.'
   },
   {
     id: 9,
-    termEo: 'Pilkisto',
-    termEn: 'Footballer',
-    category: 'Rolo',
-    definitionEo: 'Persono kiu ludas futbalon amatore aŭ profesie.',
-    exampleEo: 'Ĉiu Esperantista pilkisto estas bonvena en IKEF Futbalo.'
+    termEo: 'Arbitraciisto',
+    termEn: 'Referee',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La ĉefa juĝisto respondeca pri la apliko de la regularo sur la kampo.',
+    exampleEo: 'La arbitraciisto regas la ludon sur la kampo trankvile.'
   },
   {
     id: 10,
-    termEo: 'Futbalejo',
-    termEn: 'Football field',
-    category: 'Ekipaĵo',
-    definitionEo: 'La herba aŭ sinteza ludejo kun difinitaj markolinioj.',
-    exampleEo: 'La herbo sur la futbalejo estis perfekte tondita.'
+    termEo: 'Golulo',
+    termEn: 'Goalkeeper',
+    category: 'Bazaj Terminoj',
+    definitionEo: 'La speciala ludanto taskita gardi la golejon.',
+    exampleEo: 'Nia golulo faris mirindan salvon en la fina minuto.'
   },
+
+  // 2. Pozicioj de la Ludantoj (Player Positions)
   {
     id: 11,
     termEo: 'Golulo',
     termEn: 'Goalkeeper',
-    category: 'Rolo',
-    definitionEo: 'La sola ludanto permesita uzi la manojn en sia punareo.',
-    exampleEo: 'La golulo kaptis la danĝeran pafon en la lasta minuto.'
+    category: 'Pozicioj',
+    definitionEo: 'Defendanto de la kadrularo, la sola rajtigita uzi la manojn ene de la punareo.',
+    exampleEo: 'La golulo restas sola en la punareo kiam kontraŭulo pafas.'
   },
   {
     id: 12,
-    termEo: 'Kornero',
-    termEn: 'Corner',
-    category: 'Taktiko',
-    definitionEo: 'Kvara angulŝoto kiam la pilko eliras preter la fona linio per defendanto.',
-    exampleEo: 'El la kornero nia centra defendisto skoris per kapŝoto.'
+    termEo: 'Dekstra / Maldekstra defendanto',
+    termEn: 'Full-back / Wing-back',
+    category: 'Pozicioj',
+    definitionEo: 'Flankaj defendantoj protektantaj la eksterajn koridorojn de la kampa malantaŭo.',
+    exampleEo: 'La dekstra defendanto kuras rapide por subteni la atakon.'
   },
   {
     id: 13,
-    termEo: 'Punalto',
-    termEn: 'Penalty',
-    category: 'Reguloj',
-    definitionEo: 'Rekta ŝoto de la punpunkto (11 m) pro bafo en la punareo.',
-    exampleEo: 'La kapitano trankvile konvertis la punalton.'
+    termEo: 'Centra defendanto',
+    termEn: 'Centre-back',
+    category: 'Pozicioj',
+    definitionEo: 'Tiu, kiu ludas meze de la defenda linio por bloki la kontraŭulajn centrajn atakantojn.',
+    exampleEo: 'La centra defendanto sukcese blokis la pafon per sia korpo.'
   },
   {
     id: 14,
-    termEo: 'Asististo',
-    termEn: 'Assistant',
-    category: 'Rolo',
-    definitionEo: 'Liniulo aŭ la helpanto de la ĉefa arbitraciisto/trejnisto.',
-    exampleEo: 'La asistista arbitraciisto altigis la flagon pro forŝoto.'
+    termEo: 'Defenda mezulo',
+    termEn: 'Defensive midfielder',
+    category: 'Pozicioj',
+    definitionEo: 'Mezkampulo fokusita al la detruado de kontraŭulaj atakoj tuj antaŭ la defenda linio.',
+    exampleEo: 'La defenda mezulo forprenas la pilkon kaj restarigas trankvilon.'
   },
   {
     id: 15,
-    termEo: 'Turniro',
-    termEn: 'Tournament',
-    category: 'Evento',
-    definitionEo: 'Serio da matĉoj inter pluraj teamoj por eltrovi la ĉampionon.',
-    exampleEo: 'La UK-Futbala Turniro okazos dum la Somera Kongreso.'
+    termEo: 'Centra mezulo',
+    termEn: 'Central midfielder',
+    category: 'Pozicioj',
+    definitionEo: 'La motoro de la teamo; ludanto kiu balancas defendon kaj atakon el la centro de la kampo.',
+    exampleEo: 'La centra mezulo estas la vera gvidanto sur la kampo.'
   },
   {
     id: 16,
-    termEo: 'Ligilo',
-    termEn: 'Link',
-    category: 'Organizo',
-    definitionEo: 'Rilato aŭ federacia ligo inter kluboj kaj asocioj.',
-    exampleEo: 'IKEF formas la oficialan ligilon inter Esperanto kaj sporta komerco.'
+    termEo: 'Ataka mezulo',
+    termEn: 'Attacking midfielder',
+    category: 'Pozicioj',
+    definitionEo: 'Kreiva ludanto poziciita profunde en la mezkampo por nutri la avanulojn per spritaj pasedoj.',
+    exampleEo: 'Lia lerteco kiel ataka mezulo kreas multajn golŝancojn.'
   },
   {
     id: 17,
-    termEo: 'Respondeculo',
-    termEn: 'Manager',
-    category: 'Rolo',
-    definitionEo: 'Administra gvidanto de la teamo aŭ sekcio.',
-    exampleEo: 'La respondeculo prizorgis ĉiujn vojaĝdokumentojn de la teamo.'
+    termEo: 'Flankulo (aŭ Alreĝulo)',
+    termEn: 'Winger',
+    category: 'Pozicioj',
+    definitionEo: 'Atakema ludanto funkcianta rapide ĉe la randoj de la ludkampo.',
+    exampleEo: 'La rapida flankulo centrifugis la pilkon en la punareon.'
   },
   {
     id: 18,
-    termEo: 'Taktiko',
-    termEn: 'Tactics',
-    category: 'Taktiko',
-    definitionEo: 'Strategia plano de ludado kaj moviĝado sur la ludejo.',
-    exampleEo: 'Alta premad-taktiko surprizis niajn kontraŭulojn.'
+    termEo: 'Centrulo (aŭ Centra avanulo)',
+    termEn: 'Centre-forward',
+    category: 'Pozicioj',
+    definitionEo: 'La ĉefa frapforto poziciita rekte antaŭ la kontraŭula golejo.',
+    exampleEo: 'La centrulo ricevis la pasedon kaj rekte ŝutis golen.'
   },
   {
     id: 19,
-    termEo: 'Tekniko',
-    termEn: 'Technique',
-    category: 'Tekniko',
-    definitionEo: 'Persona lerteco kun la pilko (driblado, kontrolo, ŝoto).',
-    exampleEo: 'Lia unua pilkokontrolo montras altnivelan teknikon.'
+    termEo: 'Strikisto',
+    termEn: 'Striker',
+    category: 'Pozicioj',
+    definitionEo: 'Purrasa gol-skoranto, kies ĉefa celo estas eksplodi en la punareon kaj ŝuti.',
+    exampleEo: 'Nia strikisto jam skoris dek kvin golojn dum ĉi tiu sezono.'
   },
+
+  // 3. Teknikaj Agoj (Technical Actions)
   {
     id: 20,
-    termEo: 'Fizioterapiisto',
-    termEn: 'Physiotherapist',
-    category: 'Rolo',
-    definitionEo: 'Medicinaspertulo responda pri sano, masaĝo kaj resaniĝo de ludantoj.',
-    exampleEo: 'La fizioterapiisto rapide diagnozis la muskolan vundon.'
+    termEo: 'Pasi',
+    termEn: 'Pass',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Sendi aŭ transdoni la pilkon al samteamano.',
+    exampleEo: 'Grave estas pasi la pilkon senprokraste al libera samteamano.'
   },
-  // Additional terms to exceed 30+ total
   {
     id: 21,
-    termEo: 'De flanko (Forŝoto)',
-    termEn: 'Offside',
-    category: 'Reguloj',
-    definitionEo: 'Regulrompo kiam atakanto estas pli proksima al la fona linio ol la antaŭlasta defendanto kiam pilko estas pasata.',
-    exampleEo: 'La golo estis nuligita pro forŝoto.'
+    termEo: 'Dribli',
+    termEn: 'Dribble',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Moviĝi kun la pilko ĉe la piedoj preterpasantaj defendojn per lertaj feintoj.',
+    exampleEo: 'Li lerte driblis preter du defendantoj.'
   },
   {
     id: 22,
-    termEo: 'Flava karto',
-    termEn: 'Yellow card',
-    category: 'Reguloj',
-    definitionEo: 'Oficiala averto donita de la arbitraciisto pro malmilda faŭlo.',
-    exampleEo: 'La defendanto ricevis flavan karton pro taktika faŭlo.'
+    termEo: 'Ŝuti',
+    termEn: 'Shoot',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Lanĉi la pilkon per granda forto direkte al la golejo.',
+    exampleEo: 'Kiam vi estas proksime de la punareo, ne hezitu ŝuti!'
   },
   {
     id: 23,
-    termEo: 'Ruĝa karto',
-    termEn: 'Red card',
-    category: 'Reguloj',
-    definitionEo: 'Eskpulso el la ludejo pro severa faŭlo aŭ du flavaj kartoj.',
-    exampleEo: 'La ruĝa karto devigis la teamon ludi kun 10 homoj.'
+    termEo: 'Kapbati (aŭ Kapumi)',
+    termEn: 'Header / Head the ball',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Frapi aŭ direkti la pilkon per la frunto.',
+    exampleEo: 'Li bele kapbatis la pilkon en la supran angulon de la reto.'
   },
   {
     id: 24,
-    termEo: 'Kapŝoto',
-    termEn: 'Header',
-    category: 'Tekniko',
-    definitionEo: 'Bati la pilkon per la fronto de la kapo.',
-    exampleEo: 'Lia potenca kapŝoto trafis la supran angulon de la reto.'
+    termEo: 'Bloki',
+    termEn: 'Block',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Intersekci ŝoton aŭ pasedon por haltigi la trajektorion de la pilko.',
+    exampleEo: 'La defendanto kuraĝe saltis por bloki la forta pafon.'
   },
   {
     id: 25,
-    termEo: 'Driblado',
-    termEn: 'Dribbling',
-    category: 'Tekniko',
-    definitionEo: 'Gvidi la pilkon per mallongaj tuŝoj preter kontraŭuloj.',
-    exampleEo: 'Magia driblado preter tri defendantoj reĝojigis la publikon.'
+    termEo: 'Interkapti',
+    termEn: 'Intercept',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Forpreni la pilkon meze de kontraŭula pasedo antaŭ ol ĝi atingas la celitan ricevanton.',
+    exampleEo: 'Nia mezulo interkaptis la danĝeran pasedon de la kontraŭulo.'
   },
   {
     id: 26,
-    termEo: 'Mezkampulo',
-    termEn: 'Midfielder',
-    category: 'Rolo',
-    definitionEo: 'Ludanto funkcianta inter la defendo kaj atako.',
-    exampleEo: 'La centra mezkampulo reĝisoris la tutan ludritmon.'
+    termEo: 'Kontraŭataki',
+    termEn: 'Counter-attack',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Rapide ataki tuj post kiam oni reakiris la pilkon el la kontraŭulo.',
+    exampleEo: 'La teamo kontraŭatakis tre rapide kaj skoris golon.'
   },
   {
     id: 27,
-    termEo: 'Flanka defendisto',
-    termEn: 'Full-back / Wing-back',
-    category: 'Rolo',
-    definitionEo: 'Defendisto ludanta ĉe la maldekstra aŭ dekstra flanko.',
-    exampleEo: 'Nia dekstra flanka defendisto ofte partoprenas la atakon.'
+    termEo: 'Premi',
+    termEn: 'Press',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Intensa premo sur la kontraŭulo por devigi lin fari eraron aŭ perdi la pilkon.',
+    exampleEo: 'Ni devas premi la kontraŭulon en ties propra kampa duono.'
   },
   {
     id: 28,
-    termEo: 'Kapitano',
-    termEn: 'Captain',
-    category: 'Rolo',
-    definitionEo: 'Gvida ludanto reprezentanta la teamon sur la ludejo, portanta brakbendon.',
-    exampleEo: 'La kapitano interŝanĝis flamstandardojn kun la kontraŭa teamo.'
+    termEo: 'Marki',
+    termEn: 'Mark',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Gardi specifan kontraŭulon por malebligi al li ricevi la pilkon aŭ agi libere.',
+    exampleEo: 'Persona instrukcio: marki la plej danĝeran atakanton.'
   },
   {
     id: 29,
-    termEo: 'Libera ŝoto',
-    termEn: 'Free kick',
-    category: 'Reguloj',
-    definitionEo: 'Restartigo de la ludo post faŭlo, de la loko de la bafado.',
-    exampleEo: 'Lia rekta libera ŝoto superpasis la muron kaj eniris la golon.'
+    termEo: 'Senmarkiĝi',
+    termEn: 'Get open / Unmark oneself',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Moviĝi en liberan spacon for de la gardanta defendanto por esti preta por pasedo.',
+    exampleEo: 'Moviĝu kapable por senmarkiĝi kiam samteamano havas la pilkon.'
   },
   {
     id: 30,
-    termEo: 'Ligo / Ĉampioneco',
-    termEn: 'League / Championship',
-    category: 'Organizo',
-    definitionEo: 'Longdaŭra konkurso inter kluboj kun punktopunktoj.',
-    exampleEo: 'IKEF planas organizi la unuan Interkontinentan Esperanto-Ligon.'
+    termEo: 'Centri',
+    termEn: 'Cross',
+    category: 'Teknikaj Agoj',
+    definitionEo: 'Sendi la pilkon de la flanko profunde en la kontraŭulan punareon por kapbato aŭ tuja ŝoto.',
+    exampleEo: 'La flankulo bele centris la pilkon al la mezo de la punareo.'
   },
+
+  // 4. Taktikaj Terminoj (Tactical Terms)
   {
     id: 31,
-    termEo: 'Partio / Matĉo',
-    termEn: 'Match / Game',
-    category: 'Evento',
-    definitionEo: 'Duoble 45-minuta konkurso inter du 11-homa teamoj.',
-    exampleEo: 'La hodiaŭa amika matĉo finiĝis kun amikeca poentaro 2-2.'
+    termEo: 'Alta premo (High press)',
+    termEn: 'High press',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'Defenda taktiko kie la ataka linio premas la kontraŭulon tre proksime al ties propra golejo.',
+    exampleEo: 'Alta premo devigis la kontraŭulan golulon fari eraron.'
   },
   {
     id: 32,
-    termEo: 'Pilkokontrolo',
-    termEn: 'Ball control / First touch',
-    category: 'Tekniko',
-    definitionEo: 'Kapacito mildigi kaj haltigi la pasatan pilkon per la piedo aŭ brusto.',
-    exampleEo: 'Bona pilkokontrolo estas la fundamento de rapida futbalo.'
+    termEo: 'Malalta bloko (Low block)',
+    termEn: 'Low block',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'Defenda strategio kie la tuta teamo defendas profunde en sia propra kampa duono, lasante tre malmulte da spaco malantaŭe.',
+    exampleEo: 'Ili uzis malaltan blokon por protekti siajn unu-golan avantaĝon.'
+  },
+  {
+    id: 33,
+    termEo: 'Kontraŭatako',
+    termEn: 'Counter-attack',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'Rapida transiro de defendo al atako dum la kontraŭulo ankoraŭ estas malorganizita.',
+    exampleEo: 'Fulmrapida kontraŭatako kondukis al la decida golo.'
+  },
+  {
+    id: 34,
+    termEo: 'Pilkregado (Possession)',
+    termEn: 'Possession',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'La procento de tempo aŭ la kapablo teni la pilkon sub la kontrolo de sia teamo.',
+    exampleEo: 'Nia teamo havis 65% da pilkregado dum la unua duontempo.'
+  },
+  {
+    id: 35,
+    termEo: 'Transiro (Transition)',
+    termEn: 'Transition',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'La rapida faza ŝanĝo de la teamo kiam la pilko estas perdita (atako al defendo) aŭ gajnita (defendo al atako).',
+    exampleEo: 'Bona taktika transiro estas esenca por modernaj teamoj.'
+  },
+  {
+    id: 36,
+    termEo: 'Zonmarkado',
+    termEn: 'Zonal marking',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'Defenda sistemo kie ĉiu ludanto respondecas pri specifa spaco (zono) sur la kampo prefere ol pri specifa homo.',
+    exampleEo: 'Nia defendo uzas zonmarkadon dum angulŝotoj.'
+  },
+  {
+    id: 37,
+    termEo: 'Persona markado',
+    termEn: 'Man-to-man marking',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'Defenda sistemo kie ĉiu ludanto strikte sekvas kaj gardas unu saman kontraŭulon.',
+    exampleEo: 'Persona markado strikte haltigis la plej bonan lundanton de la kontraŭulo.'
+  },
+  {
+    id: 38,
+    termEo: 'Formacio',
+    termEn: 'Formation',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'La struktura aranĝo de la ludantoj sur la kampo (ekz. 4-3-3, 4-4-2).',
+    exampleEo: 'La trejnisto elektis la klasikan formacion 4-3-3.'
+  },
+  {
+    id: 39,
+    termEo: 'Ludsistemo',
+    termEn: 'System of play',
+    category: 'Taktikaj Terminoj',
+    definitionEo: 'La pli larĝa filozofio kaj taktika gvidlinio de la trejnisto por la teamo.',
+    exampleEo: 'La tuta klubo sekvas la saman atakan ludsistemon.'
+  },
+
+  // 5. Arbitracio (Match Officials)
+  {
+    id: 40,
+    termEo: 'Arbitraciisto (aŭ Ĉefjuĝisto)',
+    termEn: 'Referee / Chief official',
+    category: 'Arbitracio',
+    definitionEo: 'La supera aŭtoritato sur la ludkampo.',
+    exampleEo: 'La arbitraciisto fajfis por montri la finon de la matĉo.'
+  },
+  {
+    id: 41,
+    termEo: 'Help-arbitraciisto (aŭ Liniojuĝisto)',
+    termEn: 'Assistant referee / Linesman',
+    category: 'Arbitracio',
+    definitionEo: 'Kurantaj laŭ la flankaj linioj por signali ofsajdojn kaj enĵetojn.',
+    exampleEo: 'La help-arbitraciisto levis sian flagon pro forŝoto.'
+  },
+  {
+    id: 42,
+    termEo: 'Kvara arbitraciisto',
+    termEn: 'Fourth official',
+    category: 'Arbitracio',
+    definitionEo: 'Funkciulo ĉe la rando de la kampo kiu administras anstataŭigojn kaj la kromtempon.',
+    exampleEo: 'La kvara arbitraciisto montris tabulon kun 4 minutoj da kromtempo.'
+  },
+  {
+    id: 43,
+    termEo: 'VAR (Vide-Asistanta Arbitraciisto)',
+    termEn: 'Video Assistant Referee (VAR)',
+    category: 'Arbitracio',
+    definitionEo: 'Sistemo kaj teamo de arbitraciistoj analizantaj video-ripetojn por korekti klarajn erarojn.',
+    exampleEo: 'VAR ekzamenis la situacion kaj konfirmis la punŝoton.'
+  },
+  {
+    id: 44,
+    termEo: 'Arbitracia decido',
+    termEn: 'Referee decision',
+    category: 'Arbitracio',
+    definitionEo: 'La fina verdikto donita de la arbitraciisto pri iu ajn kampa situacio.',
+    exampleEo: 'Ĉiuj ludantoj devas respekti la arbitracian decidon.'
+  },
+
+  // 6. Disciplino (Discipline)
+  {
+    id: 45,
+    termEo: 'Flava karto',
+    termEn: 'Yellow card',
+    category: 'Disciplino',
+    definitionEo: 'Oficiala averto pro meze grava faŭlo aŭ nesporta konduto.',
+    exampleEo: 'Li ricevis flavan karton pro tro frua provo haltigi la libera ŝoton.'
+  },
+  {
+    id: 46,
+    termEo: 'Ruĝa karto',
+    termEn: 'Red card',
+    category: 'Disciplino',
+    definitionEo: 'Tuja elpelo de ludanto pro grava faŭlo, perforto, aŭ dua flava karto.',
+    exampleEo: 'La severa faŭlo gajnis rektan ruĝan karton.'
+  },
+  {
+    id: 47,
+    termEo: 'Averto',
+    termEn: 'Caution / Warning',
+    category: 'Disciplino',
+    definitionEo: 'Parola aŭ kart-montrita averto fare de la juĝisto.',
+    exampleEo: 'La juĝisto donis buŝan averton al la defendanto.'
+  },
+  {
+    id: 48,
+    termEo: 'Elpelo',
+    termEn: 'Sending-off / Expulsion',
+    category: 'Disciplino',
+    definitionEo: 'La devigo forlasi la kampon kaj la benkon pro ruĝa karto.',
+    exampleEo: 'La elpelo devigis la teamon ludadi kun dek homoj.'
+  },
+  {
+    id: 49,
+    termEo: 'Puno',
+    termEn: 'Penalty / Sanction',
+    category: 'Disciplino',
+    definitionEo: 'Regula sekvo (libera ŝoto, penalo, aŭ suspendo) pro malobservo de la regularo.',
+    exampleEo: 'La puno pro la grafa faŭlo estis tridek-taga suspendo.'
+  },
+
+  // 7. Fiksitaj Situacioj (Set Pieces)
+  {
+    id: 50,
+    termEo: 'Angulŝoto (Kornero)',
+    termEn: 'Corner kick',
+    category: 'Fiksitaj Situacioj',
+    definitionEo: 'Ŝoto el la kampa angulo se la pilko transiris la gollinion laste tuŝite de defendanto.',
+    exampleEo: 'Nia teamo gajnis angulŝoton en la fina sekundo.'
+  },
+  {
+    id: 51,
+    termEo: 'Libera ŝoto',
+    termEn: 'Free kick',
+    category: 'Fiksitaj Situacioj',
+    definitionEo: 'Rekomenco de la ludo post faŭlo; povas esti rekta (rajtas trafi golon rekte) aŭ nerekta.',
+    exampleEo: 'Lia rekta libera ŝoto pasis super la defendan muron.'
+  },
+  {
+    id: 52,
+    termEo: 'Punŝoto (Penalo)',
+    termEn: 'Penalty kick',
+    category: 'Fiksitaj Situacioj',
+    definitionEo: 'Rekta pafo de la 11-metra punkto kiel puno kontraŭ grava defenda faŭlo en la punareon.',
+    exampleEo: 'La kapitano trankvile pafis kaj skoris el la punŝoto.'
+  },
+  {
+    id: 53,
+    termEo: 'Enĵeto',
+    termEn: 'Throw-in',
+    category: 'Fiksitaj Situacioj',
+    definitionEo: 'Rekomenco per la manoj de malantaŭ la kapo post kiam la pilko eliras el la flanklinio.',
+    exampleEo: 'Rapida enĵeto permesis al nia flankulo ekludi antaŭ ol la defando organiziĝis.'
+  },
+  {
+    id: 54,
+    termEo: 'Golŝoto',
+    termEn: 'Goal kick',
+    category: 'Fiksitaj Situacioj',
+    definitionEo: 'Rekomenco fare de la golulo el sia sesmetra areo, post kiam ataka ludanto elpasis la pilkon preter la gollinio.',
+    exampleEo: 'La golulo profunde pafis la golŝoton ĝis la mezkampo.'
+  },
+
+  // 8. Konkurado (Competition)
+  {
+    id: 55,
+    termEo: 'Ĉampioneco (Ligo)',
+    termEn: 'League / Championship',
+    category: 'Konkurado',
+    definitionEo: 'Longdaŭra konkurso kie ĉiuj teamoj ludas periodajn matĉojn por kolekti poentojn.',
+    exampleEo: 'IKEF organizas la unuan internacian Esperanto-ĉampionecon.'
+  },
+  {
+    id: 56,
+    termEo: 'Pokalo (Kupo)',
+    termEn: 'Cup',
+    category: 'Konkurado',
+    definitionEo: 'Konkurso bazita ĉefe sur rekta elimino de la malvenkantoj.',
+    exampleEo: 'La Pokala turniro okazas ĉiujare dum la Somera Kongreso.'
+  },
+  {
+    id: 57,
+    termEo: 'Finalo',
+    termEn: 'Final',
+    category: 'Konkurado',
+    definitionEo: 'La lasta kaj decida matĉo de turniro por determini la ĉampionon.',
+    exampleEo: 'Miloj da adorantoj spektis la grandiozan finalon.'
+  },
+  {
+    id: 58,
+    termEo: 'Duonfinalo',
+    termEn: 'Semi-final',
+    category: 'Konkurado',
+    definitionEo: 'La rando antaŭ la finalo; matĉoj inter la lastaj kvar ceteraj teamoj.',
+    exampleEo: 'Venko en la duonfinalo garantias medalon.'
+  },
+  {
+    id: 59,
+    termEo: 'Kvaronfinalo',
+    termEn: 'Quarter-final',
+    category: 'Konkurado',
+    definitionEo: 'Matĉoj inter la lastaj ok teamoj de la turniro.',
+    exampleEo: 'Oko da plej bonaj teamoj elkonkuras en la kvaronfinalo.'
+  },
+  {
+    id: 60,
+    termEo: 'Grupo',
+    termEn: 'Group',
+    category: 'Konkurado',
+    definitionEo: 'Subdivido de teamoj en la frua fazo de turniro (ekz. "Grupo A").',
+    exampleEo: 'Nia teamo sukcese kvalifikiĝis el Grupo A.'
+  },
+  {
+    id: 61,
+    termEo: 'Rangotabelo',
+    termEn: 'Standings / Table',
+    category: 'Konkurado',
+    definitionEo: 'La klasifiko de la teamoj laŭ iliaj gajnitaj poentoj kaj goloj.',
+    exampleEo: 'Post kvin venkoj, ni estas ĉe la pinto de la rangotabelo.'
+  },
+
+  // 9. Trejnado (Training)
+  {
+    id: 62,
+    termEo: 'Varmigo',
+    termEn: 'Warm-up',
+    category: 'Trejnado',
+    definitionEo: 'Komencaj facilaj ekzercoj por prepari la muskolojn kaj la kardiovaskulan sistemon por la penado.',
+    exampleEo: 'Dudekminuta varmigo estas deviga antaŭ ĉiu matĉo.'
+  },
+  {
+    id: 63,
+    termEo: 'Malvarmigo',
+    termEn: 'Cool-down',
+    category: 'Trejnado',
+    definitionEo: 'Finaj ekzercoj (kiel streĉado kaj malrapida kuro) por iom post iom revenigi la korpon al ripoza stato.',
+    exampleEo: 'Ne forgesu la malvarmigon por eviti muskolajn dolorojn.'
+  },
+  {
+    id: 64,
+    termEo: 'Trejna sesio',
+    termEn: 'Training session',
+    category: 'Trejnado',
+    definitionEo: 'Difinita tempoperiodo dediĉita al la fizika aŭ taktika trejnado en tago.',
+    exampleEo: 'La matena trejna sesio temis pri rapidaj pasedoj kaj taktiko.'
+  },
+  {
+    id: 65,
+    termEo: 'Reakiro',
+    termEn: 'Recovery',
+    category: 'Trejnado',
+    definitionEo: 'Procezo ripozigi la korpon post intensa penado por eviti vundojn kaj adapti la muskolojn.',
+    exampleEo: 'Taŭga nutrado kaj dormo estas esencaj por bona reakiro.'
+  },
+  {
+    id: 66,
+    termEo: 'Fortotrejnado',
+    termEn: 'Strength training',
+    category: 'Trejnado',
+    definitionEo: 'Ekzercoj uzantaj pezojn aŭ reziston por pliigi muskolan forton.',
+    exampleEo: 'Fortotrejnado helpas al ludantoj gajni fizikajn duelo-batalojn.'
+  },
+  {
+    id: 67,
+    termEo: 'Spirtrejnado (aŭ Spir-ekzercado)',
+    termEn: 'Respiratory training',
+    category: 'Trejnado',
+    definitionEo: 'Specifa trejnado de la spiraj muskoloj (kiel la diafragmo) por plibonigi pulman efikecon, kio rekte optimigas la eltenemon de la futbalisto dum la matĉo.',
+    exampleEo: 'Modernaj sportistoj uzas spirtrejnadon por plibonigi pulman efikecon.'
+  },
+  {
+    id: 68,
+    termEo: 'Eltenemo',
+    termEn: 'Endurance',
+    category: 'Trejnado',
+    definitionEo: 'La kapablo de la atleto rezisti al laceco dum longdaŭra fizika agado.',
+    exampleEo: 'Alta eltenemo permesas al ludantoj kuregi senhalte dum 90 minutoj.'
+  },
+  {
+    id: 69,
+    termEo: 'Rapideco',
+    termEn: 'Speed',
+    category: 'Trejnado',
+    definitionEo: 'La kapablo kovri distancon en la plej mallonga ebla tempo.',
+    exampleEo: 'Lia rimarkinda rapideco kreas grandegan avantaĝon sur la flanko.'
+  },
+  {
+    id: 70,
+    termEo: 'Eksplodforto',
+    termEn: 'Explosive power',
+    category: 'Trejnado',
+    definitionEo: 'La kapablo generi maksimuman forton en minimuma tempo (ekz. por subita sprinto aŭ salto).',
+    exampleEo: 'Eksplodforto bezonatas por alta salto dum kapbato.'
+  },
+  {
+    id: 71,
+    termEo: 'Kunordigo',
+    termEn: 'Coordination',
+    category: 'Trejnado',
+    definitionEo: 'La neŭromuskola kapablo precize sinkronigi la movojn de la korpopartoj.',
+    exampleEo: 'Bona kunordigo permesas kontroli la pilkon eĉ en malfacilaj pozicioj.'
+  },
+
+  // 10. Sporta Scienco (Sports Science)
+  {
+    id: 72,
+    termEo: 'Oksigena konsumo',
+    termEn: 'Oxygen consumption',
+    category: 'Sporta Scienco',
+    definitionEo: 'La kvanto da oksigeno kiun la korpo absorbas kaj uzas por produkti energion dum la metabolo.',
+    exampleEo: 'Sporta scienco mezuras oksigenan konsumon dum intensa kuro.'
+  },
+  {
+    id: 73,
+    termEo: 'Spirfrekvenco',
+    termEn: 'Respiratory rate',
+    category: 'Sporta Scienco',
+    definitionEo: 'La nombro de spiroj (en- kaj elspiroj) kiujn homo faras en unu minuto.',
+    exampleEo: 'Spirfrekvenco pliiĝas rapide kiam la ludanto sprintas.'
+  },
+  {
+    id: 74,
+    termEo: 'Korfrekvenco',
+    termEn: 'Heart rate',
+    category: 'Sporta Scienco',
+    definitionEo: 'La nombro de korbatoj po minuto (bpm).',
+    exampleEo: 'Lia korfrekvenco dum ripozo estas nur 52 batiĝoj po minuto.'
+  },
+  {
+    id: 75,
+    termEo: 'Laktato',
+    termEn: 'Lactate',
+    category: 'Sporta Scienco',
+    definitionEo: 'Kemia kromprodukto de la anaeroba glikolizo; ĝia amasiĝo en la muskoloj kaŭzas la brursenton dum ekstrema sprinto.',
+    exampleEo: 'Laktato amasiĝas en la skrapo-muskoloj dum ekstrema sprinto.'
+  },
+  {
+    id: 76,
+    termEo: 'Fiziologia rendimento',
+    termEn: 'Physiological performance',
+    category: 'Sporta Scienco',
+    definitionEo: 'La objektiva mezuro de kiel la korpaj sistemoj (koro, pulmoj, muskoloj) funkcias dum maksimuma fizika laboro.',
+    exampleEo: 'Laboratoriaj testoj kontrolas la fiziologian rendimenton de ludantoj.'
+  },
+  {
+    id: 77,
+    termEo: 'Maksimuma oksigenkonsumo (VO2max)',
+    termEn: 'Maximal oxygen uptake (VO2max)',
+    category: 'Sporta Scienco',
+    definitionEo: 'La maksimuma indico je kiu la korpo de futbalisto povas konsumi oksigenon dum intensa ekzercado; la ĉefa indikilo de aeroba eltenemo.',
+    exampleEo: 'Alta VO2max estas la ĉefa indikilo de supervalora aeroba eltenemo.'
+  },
+  {
+    id: 78,
+    termEo: 'Resaniĝo (Fiziologia)',
+    termEn: 'Physiological recovery',
+    category: 'Sporta Scienco',
+    definitionEo: 'La rapido kaj efikeco de la metabolaj sistemoj por reveni al homeostazo (ekvilibro).',
+    exampleEo: 'Fiziologia resaniĝo rapidiĝas per taŭga hidratajo kaj spirtrejnado.'
+  },
+  {
+    id: 79,
+    termEo: 'Muskola laceco',
+    termEn: 'Muscle fatigue',
+    category: 'Sporta Scienco',
+    definitionEo: 'La provizora malkreziĝo de la muskola kapablo generi forton pro intensa laboro kaj energia malplenigo.',
+    exampleEo: 'Muskola laceco aperas tipe post pli ol 75 minutoj da intensa ludo.'
+  },
+  {
+    id: 80,
+    termEo: 'HRV (Korfrekvenca variado)',
+    termEn: 'Heart Rate Variability (HRV)',
+    category: 'Sporta Scienco',
+    definitionEo: 'La variaĵo en la tempintervaloj inter sinsekvaj korbatoj; decida indikilo por mezuri la staton de la aŭtonoma nerva sistemo kaj la pretecon de la ludanto por trejnado.',
+    exampleEo: 'Analizo de HRV montras ĉu la ludanto estas sufiĉe ripozinta por la matĉo.'
   }
 ];
 
@@ -656,6 +1058,30 @@ export const FEATURED_OPPORTUNITIES: OpportunityItem[] = [
     deadline: '2026-08-30',
     featured: false,
     tags: ['Rotterdam', 'Ĵurnalismo', 'Remote', 'Stipendio']
+  },
+  {
+    id: 5,
+    titleEo: 'Alvoko al Kunlaborantoj: Platforma Evoluigo, Verki & Redakti',
+    titleEn: 'Call for Collaborators: Platform Development & Content Writing',
+    organization: 'IKEF Futbalo - Platforma & Enhava Teamo',
+    location: 'Interrete / Remote Global',
+    type: 'Collaborator',
+    typeEo: 'Alvoko al Kunlaborantoj',
+    descriptionEo: 'Ni invitas motivitajn membrojn, programistojn, verkistojn kaj futbal-entuziasmulojn aliĝi al la evoluigo de nia platformo! Kunlaboru por skribi artikolojn, plibonigi la ciferecan futbalan vortaron, kaj konstrui novajn funkciojn por la tutmonda Esperanta futbala komunumo.',
+    descriptionEn: 'We invite passionate members, developers, writers, and football enthusiasts to join our platform development team! Collaborate to write articles, refine the digital football dictionary, and build new features for the global Esperanto football community.',
+    requirementsEo: [
+      'Intereso pri futbalo, lingvoj, verkado aŭ reteja evoluigo',
+      'Desiro kontribui al la oficiala Esperanta futbala platformo',
+      'Kapablo kunlabori en interreta teamo'
+    ],
+    requirementsEn: [
+      'Interest in football, languages, writing, or web development',
+      'Desire to contribute to the official Esperanto football platform',
+      'Ability to collaborate in an online team'
+    ],
+    deadline: 'Malfermita / Open',
+    featured: true,
+    tags: ['Evoluigo', 'Verkado', 'Vortaro', 'Kunlaboro', 'Remote']
   }
 ];
 

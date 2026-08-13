@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { MemberItem } from '@/lib/data';
-import { X, UserCheck, ShieldCheck, Sparkles, Lock, Mail, AlertCircle } from 'lucide-react';
+import { X, UserCheck, ShieldCheck, Sparkles, Lock, Mail, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -30,7 +30,10 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
   
   // Anti-spam security controls
   const [botField, setBotField] = useState(''); // Honeypot field
-  const [securityAnswer, setSecurityAnswer] = useState(''); // Security challenge: 4 + 3 = 7
+  const [securityAnswer, setSecurityAnswer] = useState('');
+  const [mathNum1, setMathNum1] = useState(() => Math.floor(Math.random() * 8) + 3);
+  const [mathNum2, setMathNum2] = useState(() => Math.floor(Math.random() * 7) + 2);
+  const [formOpenedAt] = useState<number>(() => Date.now());
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -38,19 +41,48 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
 
   if (!isOpen) return null;
 
+  const refreshCaptcha = () => {
+    const n1 = Math.floor(Math.random() * 8) + 3;
+    const n2 = Math.floor(Math.random() * 7) + 2;
+    setMathNum1(n1);
+    setMathNum2(n2);
+    setSecurityAnswer('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    // 1. Anti-spam honeypot check
+    // 1. Anti-spam honeypot check (hidden input must remain empty)
     if (botField.trim() !== '') {
-      setErrorMsg('Spam-sistemo detektis robotojn. Aliĝo malpermesita.');
+      setErrorMsg('Spam-sistemo detektis aŭtomatan robotojn (Honeypot Trigger). Aliĝo malpermesita.');
       return;
     }
 
-    // 2. Security challenge check
-    if (securityAnswer.trim() !== '7') {
-      setErrorMsg('Nevalida sekureca respondo! Bonvolu kalkuli: 4 + 3 = 7.');
+    // 2. Dynamic math challenge check
+    const expectedSum = (mathNum1 + mathNum2).toString();
+    if (securityAnswer.trim() !== expectedSum) {
+      setErrorMsg(`Nevalida sekureca respondo! Bonvolu kalkuli: ${mathNum1} + ${mathNum2} = ?`);
+      return;
+    }
+
+    // 3. Time-trap check (reject instant automated form submission under 2 seconds)
+    if (Date.now() - formOpenedAt < 2000) {
+      setErrorMsg('Aŭtomata roboto detektita (tro rapida aliĝo). Bonvolu provi denove.');
+      return;
+    }
+
+    // 4. Content link and spam keyword filter
+    const linkRegex = /(https?:\/\/|www\.|\[url=|ftp:\/\/)/i;
+    const spamKeywordsRegex = /(casino|poker|viagra|crypto|telegram\.me|wa\.me|sex|porn|loan|escort|payday|buy-online)/i;
+
+    if (linkRegex.test(name) || linkRegex.test(bio) || linkRegex.test(club)) {
+      setErrorMsg('Sekureca filtrilo: Ligiloj (URLs) ne estas permesitaj en profilo por malhelpi spamon.');
+      return;
+    }
+
+    if (spamKeywordsRegex.test(name) || spamKeywordsRegex.test(bio) || spamKeywordsRegex.test(club)) {
+      setErrorMsg('Sekureca filtrilo: Suspektinda enhavo aŭ spam-ŝlosilvortoj detektitaj.');
       return;
     }
 
@@ -316,18 +348,28 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
             </div>
 
             {/* SECURITY CHALLENGE TO PREVENT SPAM & ROBOTS */}
-            <div className="p-3 bg-stone-100 border border-stone-300 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-stone-800 text-[11px] font-bold uppercase tracking-wider">
-                <Lock className="w-3.5 h-3.5 text-green-700" />
-                <span>Sekureca Kontrolo / Anti-Robot Filter</span>
+            <div className="p-3 bg-stone-100 border border-stone-300 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-stone-800 text-[11px] font-bold uppercase tracking-wider">
+                  <Lock className="w-3.5 h-3.5 text-green-700" />
+                  <span>Sekureca Kontrolo / Anti-Robot Filter</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={refreshCaptcha}
+                  className="text-[10px] text-green-800 hover:text-green-950 flex items-center gap-1 underline font-medium"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Nova demando</span>
+                </button>
               </div>
-              <p className="text-[11px] text-stone-600">
-                Por sekurigi la datumbazon kontraŭ robotoj, kiom estas <strong>4 + 3</strong>?
+              <p className="text-[11px] text-stone-700">
+                Por sekurigi la datumbazon kontraŭ robotoj, bonvolu kalkuli: <strong className="text-stone-900 text-xs px-1.5 py-0.5 bg-stone-200 border border-stone-300">{mathNum1} + {mathNum2} = ?</strong>
               </p>
               <input
                 type="text"
                 required
-                placeholder="Entajpu ciferon (ekz. 7)"
+                placeholder="Entajpu la rezulton (ekz. ciferon)..."
                 value={securityAnswer}
                 onChange={(e) => setSecurityAnswer(e.target.value)}
                 className="w-full px-3 py-1.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-white font-bold"

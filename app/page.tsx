@@ -309,6 +309,45 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* FEATURED CALL FOR COLLABORATORS / PROJECT DEVELOPERS & WRITERS */}
+        <section className="bg-stone-900 text-white py-12 border-t border-b border-stone-800">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-8 space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-400 text-stone-950 font-black text-[10px] uppercase tracking-[0.2em]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Alvoko al Kunlaborantoj / Call for Collaborators</span>
+                </div>
+
+                <h2 className="serif text-3xl sm:text-4xl font-normal text-stone-100 leading-tight">
+                  Aliĝu al la Platforma Evoluiga Projekto
+                </h2>
+
+                <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-2xl">
+                  Ni serĉas interesitajn membrojn, programistojn, verkistojn kaj redaktantojn por kune verki artikolojn, disvolvi ciferecajn ilojn, plibonigi la futbalan vortaron kaj igi ĉi tiun platformon la ĉefa renkontiĝejo por la tutmonda Esperanta futbalaro!
+                </p>
+              </div>
+
+              <div className="lg:col-span-4 flex lg:justify-end gap-3 flex-wrap">
+                <Link
+                  href="/sancoj"
+                  className="px-6 py-3 bg-green-700 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Legu la Alvokon</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <button
+                  onClick={() => setRegisterOpen(true)}
+                  className="px-5 py-3 border border-stone-600 hover:border-stone-400 text-stone-200 hover:text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  Aliĝi Kiel Membro
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* VOCABULARY HIGHLIGHT SECTION */}
         <section className="py-16 bg-stone-100/60 border-t border-b border-stone-200">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">

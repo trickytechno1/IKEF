@@ -27,12 +27,14 @@ export default function OpportunitiesPage() {
   const [selectedType, setSelectedType] = useState<string>('Ĉiuj');
   const [selectedOpp, setSelectedOpp] = useState<OpportunityItem | null>(null);
 
-  const types = ['Ĉiuj', 'Contract', 'Trial', 'Scholarship', 'Exchange'];
+  const types = ['Ĉiuj', 'Collaborator', 'Contract', 'Trial', 'Scholarship', 'Exchange'];
 
   const filteredOpps = realTimeOpps.filter((opp) => {
     if (selectedType === 'Ĉiuj') return true;
     return opp.type === selectedType;
   });
+
+  const collaboratorOpp = realTimeOpps.find((o) => o.type === 'Collaborator') || realTimeOpps[realTimeOpps.length - 1];
 
 
   return (
@@ -79,6 +81,54 @@ export default function OpportunitiesPage() {
               >
                 Legu Detalojn & Kandidatiĝu →
               </button>
+            </div>
+          </div>
+        </section>
+
+        {/* CALL FOR COLLABORATORS / PLATFORM DEVELOPERS & WRITERS SPOTLIGHT */}
+        <section className="max-w-7xl mx-auto px-6 lg:px-10 mt-6">
+          <div className="bg-emerald-950 text-white p-8 sm:p-10 border border-emerald-800 relative overflow-hidden">
+            <div className="absolute -right-10 -bottom-10 text-emerald-900/40 text-[180px] font-black pointer-events-none select-none">
+              &lt;/&gt;
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-8 space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-800 text-emerald-100 text-[10px] font-bold uppercase tracking-[0.2em] border border-emerald-700">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>Alvoko al Kunlaborantoj & Verkistoj / Call for Collaborators</span>
+                </div>
+
+                <h2 className="serif text-2xl sm:text-3xl font-normal text-white leading-tight">
+                  Ĉu vi volas verki, traduki aŭ evoluigi nian platformon?
+                </h2>
+
+                <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-sans max-w-2xl">
+                  Ni serĉas interesitajn membrojn por partopreni en la <strong>Platforma Evoluiga Projekto</strong>. Kontribuu per skribado de artikoloj, plibonigo de la futbala vortaro, kodado aŭ disvolvo de novaj ciferecaj iloj por nia tutmonda komunumo!
+                </p>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="text-[10px] bg-emerald-900/90 text-emerald-200 px-2.5 py-1 border border-emerald-700 font-bold uppercase">
+                    ✍️ Artikol-Verkado
+                  </span>
+                  <span className="text-[10px] bg-emerald-900/90 text-emerald-200 px-2.5 py-1 border border-emerald-700 font-bold uppercase">
+                    📚 Vortaro & Terminologio
+                  </span>
+                  <span className="text-[10px] bg-emerald-900/90 text-emerald-200 px-2.5 py-1 border border-emerald-700 font-bold uppercase">
+                    💻 Reteja Evoluigo (Software Dev)
+                  </span>
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 flex lg:justify-end">
+                <button
+                  onClick={() => setSelectedOpp(collaboratorOpp)}
+                  className="w-full lg:w-auto px-6 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-stone-950 font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Aliĝi kiel Kunlaboranto</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </section>

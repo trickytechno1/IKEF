@@ -34,13 +34,16 @@ export default function VocabularyPage() {
 
   const categories = [
     'Ĉiuj',
-    'Taktiko',
-    'Tekniko',
-    'Rolo',
-    'Organizo',
-    'Ekipaĵo',
-    'Reguloj',
-    'Evento'
+    'Bazaj Terminoj',
+    'Pozicioj',
+    'Teknikaj Agoj',
+    'Taktikaj Terminoj',
+    'Arbitracio',
+    'Disciplino',
+    'Fiksitaj Situacioj',
+    'Konkurado',
+    'Trejnado',
+    'Sporta Scienco'
   ];
 
   // Filtered vocabulary list

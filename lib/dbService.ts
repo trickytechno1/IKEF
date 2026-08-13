@@ -221,6 +221,20 @@ export async function registerUserInFirestore(payload: RegisterPayload, uid?: st
   const cleanCountry = sanitizeInput(payload.country);
   const cleanCountryCode = sanitizeInput(payload.countryCode).toUpperCase().slice(0, 3);
   const cleanBio = sanitizeInput(payload.bio);
+  const cleanClub = payload.club ? sanitizeInput(payload.club) : '';
+  const cleanPosition = payload.position ? sanitizeInput(payload.position) : '';
+
+  // 3. Anti-Spam URL & Keyword Filter
+  const linkRegex = /(https?:\/\/|www\.|\[url=|ftp:\/\/)/i;
+  const spamKeywordsRegex = /(casino|poker|viagra|crypto|telegram\.me|wa\.me|sex|porn|loan|escort|payday|buy-online)/i;
+
+  if (linkRegex.test(cleanName) || linkRegex.test(cleanBio) || linkRegex.test(cleanClub)) {
+    return { success: false, message: "Spam-sistemo detektis nepermesitajn ligilojn (URLs) en via profilo." };
+  }
+
+  if (spamKeywordsRegex.test(cleanName) || spamKeywordsRegex.test(cleanBio) || spamKeywordsRegex.test(cleanClub)) {
+    return { success: false, message: "Spam-sistemo detektis nepermesitajn ŝlosilvortojn en via profilo." };
+  }
 
   if (!cleanName || cleanName.length < 2) {
     return { success: false, message: "Bonvolu inserigi validan nomon." };
@@ -241,8 +255,8 @@ export async function registerUserInFirestore(payload: RegisterPayload, uid?: st
     roleEo: payload.roleEo || payload.role,
     languages: payload.languages.length > 0 ? payload.languages : ['eo'],
     eoLevel: payload.eoLevel,
-    position: payload.position ? sanitizeInput(payload.position) : 'Pilkisto',
-    club: payload.club ? sanitizeInput(payload.club) : 'IKEF Futbalo',
+    position: cleanPosition || 'Pilkisto',
+    club: cleanClub || 'IKEF Futbalo',
     bio: cleanBio,
     verified: false,
     avatarBg: 'bg-green-700'
