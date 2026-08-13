@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
-import DatabaseControlBar from './DatabaseControlBar';
 import {
   Globe,
   Menu,
@@ -49,7 +48,6 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
 
   return (
     <>
-      <DatabaseControlBar />
       <header className="sticky top-0 z-40 bg-white border-b border-stone-200">
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
