@@ -236,7 +236,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem('ikef_lang') as Language;
     if (saved === 'eo' || saved === 'en') {
-      setLang(saved);
+      setTimeout(() => setLang(saved), 0);
     }
   }, []);
 

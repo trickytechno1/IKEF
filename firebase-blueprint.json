@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "members": {
+      "title": "Member Profile",
+      "description": "IKEF Futbalo community member profiles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "country": { "type": "string" },
+        "countryCode": { "type": "string" },
+        "role": { "type": "string" },
+        "roleEo": { "type": "string" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "eoLevel": { "type": "string" },
+        "position": { "type": "string" },
+        "club": { "type": "string" },
+        "bio": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "emailVerified": { "type": "boolean" },
+        "avatarBg": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "country", "role"]
+    },
+    "registrations": {
+      "title": "User Registration Log",
+      "description": "Audit and security log for anti-spam user registrations",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "status": { "type": "string" },
+        "emailVerified": { "type": "boolean" },
+        "securityPassed": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "status"]
+    },
+    "vocabulary": {
+      "title": "Esperanto Football Term",
+      "description": "Esperanto football vocabulary term",
+      "type": "object",
+      "properties": {
+        "termEo": { "type": "string" },
+        "termEn": { "type": "string" },
+        "category": { "type": "string" },
+        "definitionEo": { "type": "string" },
+        "exampleEo": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["termEo", "termEn", "category"]
+    },
+    "opportunities": {
+      "title": "Football Opportunity",
+      "description": "International football opportunity or scholarship",
+      "type": "object",
+      "properties": {
+        "titleEo": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "organization": { "type": "string" },
+        "location": { "type": "string" },
+        "type": { "type": "string" },
+        "typeEo": { "type": "string" },
+        "descriptionEo": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "requirementsEo": { "type": "array", "items": { "type": "string" } },
+        "requirementsEn": { "type": "array", "items": { "type": "string" } },
+        "deadline": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["titleEo", "titleEn", "organization"]
+    },
+    "events": {
+      "title": "Football Event",
+      "description": "Football match or Esperanto congress event",
+      "type": "object",
+      "properties": {
+        "titleEo": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "date": { "type": "string" },
+        "location": { "type": "string" },
+        "type": { "type": "string" },
+        "descriptionEo": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "attendeesCount": { "type": "number" }
+      },
+      "required": ["titleEo", "date", "location"]
+    }
+  }
+}

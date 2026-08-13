@@ -6,7 +6,8 @@ import Footer from '@/components/Footer';
 import RegisterModal from '@/components/RegisterModal';
 import MemberModal from '@/components/MemberModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { INITIAL_MEMBERS, MemberItem } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { MemberItem } from '@/lib/data';
 import {
   Users,
   Search,
@@ -21,15 +22,19 @@ import {
 
 export default function DirectoryPage() {
   const { lang, t } = useLanguage();
+  const { members: realTimeMembers } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<MemberItem | null>(null);
-  const [membersList, setMembersList] = useState<MemberItem[]>(INITIAL_MEMBERS);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [countryFilter, setCountryFilter] = useState('All');
   const [languageFilter, setLanguageFilter] = useState('All');
+  const [verificationFilter, setVerificationFilter] = useState('All');
+
+  const membersList = realTimeMembers;
+
 
   // Extract unique countries & languages
   const availableCountries = useMemo(() => {
@@ -64,14 +69,14 @@ export default function DirectoryPage() {
       const matchesCountry = countryFilter === 'All' || m.country === countryFilter;
       const matchesLang =
         languageFilter === 'All' || m.languages.includes(languageFilter.toLowerCase());
+      const matchesVerification =
+        verificationFilter === 'All' ||
+        (verificationFilter === 'Verified' && m.verified) ||
+        (verificationFilter === 'Pending' && !m.verified);
 
-      return matchesSearch && matchesRole && matchesCountry && matchesLang;
+      return matchesSearch && matchesRole && matchesCountry && matchesLang && matchesVerification;
     });
-  }, [membersList, searchQuery, roleFilter, countryFilter, languageFilter]);
-
-  const handleAddMember = (newMember: MemberItem) => {
-    setMembersList((prev) => [newMember, ...prev]);
-  };
+  }, [membersList, searchQuery, roleFilter, countryFilter, languageFilter, verificationFilter]);
 
   return (
     <div className="min-h-screen bg-[#fcfaf7] text-stone-900 flex flex-col font-sans selection:bg-green-100">
@@ -180,18 +185,35 @@ export default function DirectoryPage() {
                 </select>
               </div>
 
+              {/* Admin Verification Status Filter */}
+              <div>
+                <label className="block text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1">
+                  Admin-Verifiko Statuso
+                </label>
+                <select
+                  value={verificationFilter}
+                  onChange={(e) => setVerificationFilter(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7] font-semibold text-stone-800"
+                >
+                  <option value="All">Ĉiuj Profiloj</option>
+                  <option value="Verified">Verifikitaj de Admin</option>
+                  <option value="Pending">Pendentaj (Profile must be verified by admin)</option>
+                </select>
+              </div>
+
             </div>
 
             {/* Counter */}
             <div className="pt-3 border-t border-stone-200 flex items-center justify-between text-xs text-stone-500 font-bold">
               <span>Membroj trovitaj: <strong className="text-stone-900">{filteredMembers.length}</strong></span>
-              {(roleFilter !== 'All' || countryFilter !== 'All' || languageFilter !== 'All' || searchQuery) && (
+              {(roleFilter !== 'All' || countryFilter !== 'All' || languageFilter !== 'All' || verificationFilter !== 'All' || searchQuery) && (
                 <button
                   onClick={() => {
                     setSearchQuery('');
                     setRoleFilter('All');
                     setCountryFilter('All');
                     setLanguageFilter('All');
+                    setVerificationFilter('All');
                   }}
                   className="text-green-700 hover:underline flex items-center gap-1 cursor-pointer text-xs font-bold uppercase tracking-wider"
                 >
@@ -212,6 +234,21 @@ export default function DirectoryPage() {
               >
                 <div>
                   
+                  {/* Verification Badge Header */}
+                  <div className="mb-3">
+                    {member.verified ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-800 border border-green-300 text-[10px] font-bold">
+                        <ShieldCheck className="w-3 h-3 text-green-700" />
+                        <span>Verifikita de Admin</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-300 text-[10px] font-bold">
+                        <ShieldCheck className="w-3 h-3 text-amber-600 opacity-60" />
+                        <span>Profile must be verified by admin</span>
+                      </span>
+                    )}
+                  </div>
+
                   {/* Card Top Header */}
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
@@ -224,7 +261,7 @@ export default function DirectoryPage() {
                             {member.name}
                           </h3>
                           {member.verified && (
-                            <span title="IKEF Verified Member">
+                            <span title="IKEF Verifikita Membro de Admin">
                               <ShieldCheck className="w-4 h-4 text-green-700 fill-green-100 shrink-0" />
                             </span>
                           )}
@@ -309,7 +346,6 @@ export default function DirectoryPage() {
       <RegisterModal
         isOpen={registerOpen}
         onClose={() => setRegisterOpen(false)}
-        onAddMember={handleAddMember}
       />
 
       <MemberModal

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
+import DatabaseControlBar from './DatabaseControlBar';
 import {
   Globe,
   Menu,
@@ -24,8 +26,11 @@ interface NavbarProps {
 
 export default function Navbar({ onOpenRegister }: NavbarProps) {
   const { lang, toggleLang, t } = useLanguage();
+  const { members } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const pendingCount = members.filter((m) => !m.verified).length;
 
   const navLinks = [
     { href: '/', label: t('nav.home'), icon: Home },
@@ -33,6 +38,7 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
     { href: '/direktorio', label: t('nav.directory'), icon: Users },
     { href: '/sancoj', label: t('nav.opportunities'), icon: Briefcase },
     { href: '/eventoj', label: t('nav.events'), icon: Calendar },
+    { href: '/admin', label: 'Admin', icon: Shield, badge: pendingCount > 0 ? pendingCount : null },
   ];
 
   const isActive = (path: string) => {
@@ -42,7 +48,10 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-stone-200">
+    <>
+      <DatabaseControlBar />
+      <header className="sticky top-0 z-40 bg-white border-b border-stone-200">
+
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-20">
           
@@ -75,13 +84,18 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`transition-colors py-1 ${
+                    className={`transition-colors py-1 flex items-center gap-1.5 ${
                       active
                         ? 'text-green-700 border-b-2 border-green-700 font-extrabold'
                         : 'hover:text-stone-900'
                     }`}
                   >
-                    {link.label}
+                    <span>{link.label}</span>
+                    {link.badge !== null && link.badge !== undefined && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-stone-900 text-[9px] font-extrabold leading-none">
+                        {link.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -153,13 +167,18 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block py-2.5 text-xs font-bold uppercase tracking-wider border-b border-stone-200/60 ${
+                className={`flex items-center justify-between py-2.5 text-xs font-bold uppercase tracking-wider border-b border-stone-200/60 ${
                   active
                     ? 'text-green-700 font-extrabold'
                     : 'text-stone-700 hover:text-stone-900'
                 }`}
               >
-                {link.label}
+                <span>{link.label}</span>
+                {link.badge !== null && link.badge !== undefined && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-900 text-[10px] font-extrabold">
+                    {link.badge} Penda
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -178,5 +197,6 @@ export default function Navbar({ onOpenRegister }: NavbarProps) {
         </div>
       )}
     </header>
+    </>
   );
 }

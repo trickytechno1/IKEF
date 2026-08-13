@@ -6,7 +6,8 @@ import Footer from '@/components/Footer';
 import RegisterModal from '@/components/RegisterModal';
 import SpeechButton from '@/components/SpeechButton';
 import { useLanguage } from '@/context/LanguageContext';
-import { INITIAL_VOCABULARY, VocabItem, MemberItem } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { VocabItem, MemberItem } from '@/lib/data';
 import {
   Search,
   BookOpen,
@@ -22,6 +23,7 @@ import {
 
 export default function VocabularyPage() {
   const { lang, t } = useLanguage();
+  const { vocabulary: realTimeVocab } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Ĉiuj');
@@ -43,7 +45,7 @@ export default function VocabularyPage() {
 
   // Filtered vocabulary list
   const filteredVocab = useMemo(() => {
-    return INITIAL_VOCABULARY.filter((item) => {
+    return realTimeVocab.filter((item) => {
       const matchesCategory =
         selectedCategory === 'Ĉiuj' || item.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
@@ -55,7 +57,8 @@ export default function VocabularyPage() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [realTimeVocab, searchQuery, selectedCategory]);
+
 
   const toggleBookmark = (id: number) => {
     setBookmarkedIds((prev) =>
@@ -144,7 +147,7 @@ export default function VocabularyPage() {
                             {filteredVocab[cardIndex].termEn}
                           </p>
                           <p className="text-xs text-stone-600 italic">
-                            "{filteredVocab[cardIndex].definitionEo}"
+                            &quot;{filteredVocab[cardIndex].definitionEo}&quot;
                           </p>
                         </div>
                       ) : (
@@ -291,7 +294,7 @@ export default function VocabularyPage() {
 
                         {item.exampleEo && (
                           <p className="text-[11px] text-stone-500 italic mt-2 bg-stone-100/70 p-2.5 border border-stone-200">
-                            "{item.exampleEo}"
+                            &quot;{item.exampleEo}&quot;
                           </p>
                         )}
                       </div>

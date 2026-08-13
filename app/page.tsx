@@ -9,7 +9,8 @@ import OpportunityModal from '@/components/OpportunityModal';
 import MemberModal from '@/components/MemberModal';
 import SpeechButton from '@/components/SpeechButton';
 import { useLanguage } from '@/context/LanguageContext';
-import { INITIAL_VOCABULARY, FEATURED_OPPORTUNITIES, INITIAL_MEMBERS, MemberItem, OpportunityItem } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { MemberItem, OpportunityItem } from '@/lib/data';
 import {
   Users,
   Globe2,
@@ -31,14 +32,15 @@ import {
 
 export default function HomePage() {
   const { lang, t } = useLanguage();
+  const { members: realTimeMembers, opportunities: realTimeOpps, vocabulary: realTimeVocab } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [selectedOpp, setSelectedOpp] = useState<OpportunityItem | null>(null);
   const [selectedMember, setSelectedMember] = useState<MemberItem | null>(null);
-  const [members, setMembers] = useState<MemberItem[]>(INITIAL_MEMBERS);
 
-  const handleAddMember = (newMember: MemberItem) => {
-    setMembers((prev) => [newMember, ...prev]);
-  };
+  const members = realTimeMembers;
+  const FEATURED_OPPORTUNITIES = realTimeOpps;
+  const INITIAL_VOCABULARY = realTimeVocab;
+
 
   return (
     <div className="min-h-screen bg-[#fcfaf7] text-stone-900 flex flex-col font-sans selection:bg-green-100 selection:text-green-900">
@@ -408,7 +410,6 @@ export default function HomePage() {
       <RegisterModal
         isOpen={registerOpen}
         onClose={() => setRegisterOpen(false)}
-        onAddMember={handleAddMember}
       />
 
       <OpportunityModal

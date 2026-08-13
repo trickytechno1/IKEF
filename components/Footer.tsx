@@ -85,6 +85,11 @@ export default function Footer() {
                   {t('nav.events')} (UK 2026 Matĉoj)
                 </Link>
               </li>
+              <li>
+                <Link href="/admin" className="hover:text-green-700 transition-colors font-bold text-green-800">
+                  Administrejo (Admin Portal)
+                </Link>
+              </li>
             </ul>
           </div>
 

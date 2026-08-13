@@ -2,17 +2,19 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { MemberItem } from '@/lib/data';
-import { X, UserCheck, ShieldCheck, Sparkles, Flag, Globe } from 'lucide-react';
+import { X, UserCheck, ShieldCheck, Sparkles, Lock, Mail, AlertCircle } from 'lucide-react';
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddMember: (member: MemberItem) => void;
+  onAddMember?: (member: MemberItem) => void;
 }
 
 export default function RegisterModal({ isOpen, onClose, onAddMember }: RegisterModalProps) {
   const { t } = useLanguage();
+  const { registerMember, signUp } = useAuth();
 
   const [name, setName] = useState('');
   const [country, setCountry] = useState('Spain');
@@ -24,97 +26,171 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
   const [languages, setLanguages] = useState('eo, en');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Anti-spam security controls
+  const [botField, setBotField] = useState(''); // Honeypot field
+  const [securityAnswer, setSecurityAnswer] = useState(''); // Security challenge: 4 + 3 = 7
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !country) return;
+    setErrorMsg('');
 
-    const roleEoMap: Record<string, string> = {
-      Player: 'Ludanto',
-      Coach: 'Trejnisto',
-      Referee: 'Arbitraciisto',
-      Organizer: 'Organizanto',
-      Researcher: 'Esploristo',
-      Scout: 'Skolto',
-      Fan: 'Amatoro'
-    };
+    // 1. Anti-spam honeypot check
+    if (botField.trim() !== '') {
+      setErrorMsg('Spam-sistemo detektis robotojn. Aliĝo malpermesita.');
+      return;
+    }
 
-    const newMember: MemberItem = {
-      id: Date.now(),
-      name,
-      country,
-      countryCode: countryCode || 'UN',
-      role,
-      roleEo: roleEoMap[role] || role,
-      languages: languages.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
-      eoLevel,
-      position: position || (role === 'Player' ? 'Golejo / Mezkampo' : role),
-      club: club || 'IKEF Futbalo Member',
-      bio: bio || 'Antaŭenigante futbalon kaj Esperanton en nia komunumo!',
-      email: email || 'membro@ikef.org',
-      verified: true,
-      avatarBg: 'bg-emerald-700'
-    };
+    // 2. Security challenge check
+    if (securityAnswer.trim() !== '7') {
+      setErrorMsg('Nevalida sekureca respondo! Bonvolu kalkuli: 4 + 3 = 7.');
+      return;
+    }
 
-    onAddMember(newMember);
-    setSubmitted(true);
+    if (!name || !country || !email) {
+      setErrorMsg('Bonvolu plenigi ĉiujn devigaĵojn.');
+      return;
+    }
 
-    setTimeout(() => {
-      setSubmitted(false);
-      onClose();
-    }, 1800);
+    if (password && password.length < 6) {
+      setErrorMsg('La pasvorto devas esti almenaŭ 6-simbola (almenaŭ 6 karakteroj).');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Optional Firebase Auth sign up if password provided
+      if (password) {
+        const authRes = await signUp(email, password);
+        if (!authRes.success) {
+          setErrorMsg(authRes.message);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const roleEoMap: Record<string, string> = {
+        Player: 'Ludanto',
+        Coach: 'Trejnisto',
+        Referee: 'Arbitraciisto',
+        Organizer: 'Organizanto',
+        Researcher: 'Esploristo',
+        Scout: 'Skolto',
+        Fan: 'Amatoro'
+      };
+
+      // Real-time Firestore registration
+      const result = await registerMember({
+        name,
+        email,
+        country,
+        countryCode: countryCode || 'ES',
+        role,
+        roleEo: roleEoMap[role] || role,
+        languages: languages.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+        eoLevel,
+        position: position || (role === 'Player' ? 'Pilkisto' : role),
+        club: club || 'IKEF Futbalo Member',
+        bio: bio || 'Antaŭenigante futbalon kaj Esperanton en nia komunumo!',
+        botField,
+        securityChallengeAnswer: securityAnswer
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          onClose();
+        }, 2200);
+      } else {
+        setErrorMsg(result.message);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Eraro dum registrado.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 md:p-8 my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-white border border-stone-200 p-6 md:p-8 my-8 max-h-[90vh] overflow-y-auto shadow-xl">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-800 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {submitted ? (
           <div className="py-8 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-green-800 mx-auto flex items-center justify-center">
+            <div className="w-16 h-16 bg-green-100 border border-green-300 text-green-800 mx-auto flex items-center justify-center">
               <UserCheck className="w-8 h-8" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900">
+            <h3 className="serif text-2xl font-normal text-stone-900">
               Gratulon, {name}!
             </h3>
-            <p className="text-sm text-slate-600">
-              Via profilo sukcese kreiĝis kaj estas videbla en la membara adresaro de IKEF Futbalo!
+            <p className="text-xs text-stone-600 leading-relaxed max-w-sm mx-auto">
+              Via profilo estas sukcese kreiĝinta kaj registrita en la real-tempa Firestore datumbazo!
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 text-green-800 text-xs font-bold border border-green-200">
-              <ShieldCheck className="w-4 h-4 text-green-700" />
-              Kontrolita Membro de IKEF
+            <div className="p-3 bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold space-y-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+                <span>Pendanta Admin-Konfirmo</span>
+              </div>
+              <p className="text-[11px] font-medium text-amber-800">
+                (Profile must be verified by admin for full official verification badge)
+              </p>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <div className="flex items-center gap-2 text-green-700 font-bold text-xs uppercase tracking-wider mb-1">
-                <Sparkles className="w-4 h-4" />
-                <span>Aliĝo al IKEF Futbalo</span>
+              <div className="flex items-center gap-2 text-green-700 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Oficiala Membara Aliĝo & Firestore</span>
               </div>
-              <h2 className="text-2xl font-black text-slate-900">
+              <h2 className="serif text-2xl sm:text-3xl font-normal text-stone-900">
                 {t('hero.cta.primary')}
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Eniru la oficialan reton de Esperantistaj futbalistoj, trejnistoj kaj amatoroj.
+              <p className="text-xs text-stone-500 mt-1">
+                Eniru la oficialan reton de Esperantistaj futbalistoj. Sekurigita per kontraŭ-spama filtrilo.
               </p>
+            </div>
+
+            {errorMsg && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            {/* HONEYPOT FIELD FOR BOT PROTECTION (HIDDEN FROM HUMANS) */}
+            <div className="hidden" aria-hidden="true">
+              <label>Ne plenigu ĉi tiun kampon / Leave empty:</label>
+              <input
+                type="text"
+                tabIndex={-1}
+                value={botField}
+                onChange={(e) => setBotField(e.target.value)}
+                autoComplete="off"
+              />
             </div>
 
             {/* Name */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Nomo & Antaŭnomo / Full Name *
+              <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                Nomo & Antaŭnomo *
               </label>
               <input
                 type="text"
@@ -122,37 +198,37 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
                 placeholder="ekz. Marc Valls"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 focus:ring-2 focus:ring-green-100 outline-none text-sm"
+                className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
               />
             </div>
 
             {/* Country & Code */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Lando / Country *
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  Lando *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="ekz. Hispanio, USA, Brazilo"
+                  placeholder="ekz. Hispanio, USA"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 focus:ring-2 focus:ring-green-100 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Kodo (ISO 2)
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  ISO-Kodo (2 literoj)
                 </label>
                 <input
                   type="text"
                   maxLength={2}
-                  placeholder="ES, US, FR, BR"
+                  placeholder="ES, US, FR"
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 focus:ring-2 focus:ring-green-100 outline-none text-sm uppercase"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs uppercase bg-[#fcfaf7]"
                 />
               </div>
             </div>
@@ -160,13 +236,13 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
             {/* Role & Esperanto Level */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Rolo / Primary Role *
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  Rolo *
                 </label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 focus:ring-2 focus:ring-green-100 outline-none text-sm bg-white"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
                 >
                   <option value="Player">Ludanto (Player)</option>
                   <option value="Coach">Trejnisto (Coach)</option>
@@ -174,18 +250,18 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
                   <option value="Organizer">Organizanto (Organizer)</option>
                   <option value="Researcher">Esploristo (Researcher)</option>
                   <option value="Scout">Skolto (Scout)</option>
-                  <option value="Fan">Amatoro / Ŝatanto (Fan)</option>
+                  <option value="Fan">Amatoro (Fan)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Esperanto-Nivelo *
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  EO-Nivelo *
                 </label>
                 <select
                   value={eoLevel}
                   onChange={(e) => setEoLevel(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 focus:ring-2 focus:ring-green-100 outline-none text-sm bg-white"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
                 >
                   <option value="Komencanto">Komencanto (A1-A2)</option>
                   <option value="Progresanto">Progresanto (B1-B2)</option>
@@ -195,53 +271,11 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
               </div>
             </div>
 
-            {/* Position / Club */}
+            {/* Email & Optional Password */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Pozicio (se ludanto)
-                </label>
-                <input
-                  type="text"
-                  placeholder="ekz. Striker, Midfielder"
-                  value={position}
-                  onChange={(e) => setPosition(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 outline-none text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Klubo / Organizo
-                </label>
-                <input
-                  type="text"
-                  placeholder="ekz. Loka teamo aŭ IKEF"
-                  value={club}
-                  onChange={(e) => setClub(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 outline-none text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Languages & Email */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Lingvoj (komo-separitaj)
-                </label>
-                <input
-                  type="text"
-                  placeholder="eo, en, es, fr"
-                  value={languages}
-                  onChange={(e) => setLanguages(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 outline-none text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Retpoŝto / Email *
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  Retpoŝto *
                 </label>
                 <input
                   type="email"
@@ -249,39 +283,72 @@ export default function RegisterModal({ isOpen, onClose, onAddMember }: Register
                   placeholder="vi@ekzemplo.org"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                  Pasvorto (laŭvola por Konto)
+                </label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
                 />
               </div>
             </div>
 
             {/* Bio */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Mallonga Priskribo / Bio
+              <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
+                Priskribo
               </label>
               <textarea
                 rows={2}
                 placeholder="Rakontu ion pri via futbala sperto kaj intereso pri Esperanto..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-green-600 outline-none text-sm"
+                className="w-full px-3.5 py-2.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
+              />
+            </div>
+
+            {/* SECURITY CHALLENGE TO PREVENT SPAM & ROBOTS */}
+            <div className="p-3 bg-stone-100 border border-stone-300 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-stone-800 text-[11px] font-bold uppercase tracking-wider">
+                <Lock className="w-3.5 h-3.5 text-green-700" />
+                <span>Sekureca Kontrolo / Anti-Robot Filter</span>
+              </div>
+              <p className="text-[11px] text-stone-600">
+                Por sekurigi la datumbazon kontraŭ robotoj, kiom estas <strong>4 + 3</strong>?
+              </p>
+              <input
+                type="text"
+                required
+                placeholder="Entajpu ciferon (ekz. 7)"
+                value={securityAnswer}
+                onChange={(e) => setSecurityAnswer(e.target.value)}
+                className="w-full px-3 py-1.5 border border-stone-300 focus:border-green-700 outline-none text-xs bg-white font-bold"
               />
             </div>
 
             {/* Actions */}
-            <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+            <div className="pt-3 flex items-center justify-end gap-3 border-t border-stone-200">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                className="px-4 py-2 border border-stone-300 text-xs font-bold uppercase tracking-wider text-stone-700 hover:bg-stone-100 transition-colors"
               >
                 Nuligi
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-lg bg-green-700 hover:bg-green-800 text-white text-xs font-bold shadow-md shadow-green-800/20 transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
               >
-                Konservi & Aliĝi
+                {isSubmitting ? 'Konservas...' : 'Konservi en Firestore'}
               </button>
             </div>
           </form>

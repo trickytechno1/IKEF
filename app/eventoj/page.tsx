@@ -5,7 +5,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RegisterModal from '@/components/RegisterModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { UPCOMING_EVENTS, EventItem } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { EventItem } from '@/lib/data';
 import {
   Calendar,
   MapPin,
@@ -20,26 +21,23 @@ import {
 
 export default function EventsPage() {
   const { lang, t } = useLanguage();
+  const { events: realTimeEvents } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
-  const [events, setEvents] = useState<EventItem[]>(UPCOMING_EVENTS);
   const [joinedEvents, setJoinedEvents] = useState<number[]>([]);
 
   const handleToggleAttendance = (id: number) => {
     setJoinedEvents((prev) => {
       const isJoined = prev.includes(id);
       if (isJoined) {
-        setEvents((list) =>
-          list.map((ev) => (ev.id === id ? { ...ev, attendeesCount: ev.attendeesCount - 1 } : ev))
-        );
         return prev.filter((itemId) => itemId !== id);
       } else {
-        setEvents((list) =>
-          list.map((ev) => (ev.id === id ? { ...ev, attendeesCount: ev.attendeesCount + 1 } : ev))
-        );
         return [...prev, id];
       }
     });
   };
+
+  const events = realTimeEvents;
+
 
   return (
     <div className="min-h-screen bg-[#fcfaf7] text-stone-900 flex flex-col font-sans selection:bg-green-100">

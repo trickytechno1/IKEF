@@ -5,11 +5,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RegisterModal from '@/components/RegisterModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { MemberItem } from '@/lib/data';
-import { UserCheck, ShieldCheck, Sparkles, UserPlus, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { UserCheck, ShieldCheck, Sparkles, UserPlus, ArrowRight, Lock, AlertCircle } from 'lucide-react';
 
 export default function JoinPage() {
   const { t } = useLanguage();
+  const { registerMember, signUp } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
 
   const [name, setName] = useState('');
@@ -22,12 +23,90 @@ export default function JoinPage() {
   const [languages, setLanguages] = useState('eo, en');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Anti-spam security controls
+  const [botField, setBotField] = useState(''); // Honeypot field
+  const [securityAnswer, setSecurityAnswer] = useState(''); // Math challenge: 4 + 3 = 7
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !country) return;
-    setSubmitted(true);
+    setErrorMsg('');
+
+    // 1. Anti-spam honeypot check
+    if (botField.trim() !== '') {
+      setErrorMsg('Spam-sistemo detektis robotojn. Aliĝo malpermesita.');
+      return;
+    }
+
+    // 2. Security challenge check
+    if (securityAnswer.trim() !== '7') {
+      setErrorMsg('Nevalida sekureca respondo! Bonvolu kalkuli: 4 + 3 = 7.');
+      return;
+    }
+
+    if (!name || !country || !email) {
+      setErrorMsg('Bonvolu plenigi ĉiujn devigaĵojn.');
+      return;
+    }
+
+    if (password && password.length < 6) {
+      setErrorMsg('La pasvorto devas esti almenaŭ 6-simbola (almenaŭ 6 karakteroj).');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      if (password) {
+        const authRes = await signUp(email, password);
+        if (!authRes.success) {
+          setErrorMsg(authRes.message);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const roleEoMap: Record<string, string> = {
+        Player: 'Ludanto',
+        Coach: 'Trejnisto',
+        Referee: 'Arbitraciisto',
+        Organizer: 'Organizanto',
+        Researcher: 'Esploristo',
+        Scout: 'Skolto',
+        Fan: 'Amatoro'
+      };
+
+      const result = await registerMember({
+        name,
+        email,
+        country,
+        countryCode: countryCode || 'ES',
+        role,
+        roleEo: roleEoMap[role] || role,
+        languages: languages.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+        eoLevel,
+        position: position || (role === 'Player' ? 'Pilkisto' : role),
+        club: club || 'IKEF Futbalo Member',
+        bio: bio || 'Antaŭenigante futbalon kaj Esperanton en nia komunumo!',
+        botField,
+        securityChallengeAnswer: securityAnswer
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMsg(result.message);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Eraro dum registrado.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,13 +125,22 @@ export default function JoinPage() {
                 <h2 className="serif text-3xl font-normal text-stone-900">
                   Gratulon, {name}!
                 </h2>
-                <p className="text-xs text-stone-600 max-w-md mx-auto">
-                  Via profilo sukcese kreiĝis en la oficiala adresaro de IKEF Futbalo!
+                <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                  Via profilo estas sukcese kreiĝinta kaj konservita en la oficiala Firestore datumbazo!
                 </p>
+                <div className="p-3.5 bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold max-w-md mx-auto space-y-1">
+                  <div className="flex items-center justify-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-amber-700" />
+                    <span>Pendanta Administranta Konfirmo</span>
+                  </div>
+                  <p className="text-[11px] font-medium text-amber-800">
+                    Profile must be verified by admin for official badge verification.
+                  </p>
+                </div>
                 <div className="pt-4">
                   <a
                     href="/direktorio"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 text-white font-bold text-xs uppercase tracking-wider"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-bold text-xs uppercase tracking-wider transition-all"
                   >
                     <span>Vidi Adresaron Nun</span>
                     <ArrowRight className="w-4 h-4" />
@@ -70,8 +158,27 @@ export default function JoinPage() {
                     Kreu Vian Profilon
                   </h1>
                   <p className="text-xs text-stone-500 mt-1">
-                    Formu parton de la internacia Esperantista futbal-komunumo kaj malkovru novajn ŝancojn.
+                    Formu parton de la internacia Esperantista futbal-komunumo kaj konservu vian profilon en reala tempo.
                   </p>
+                </div>
+
+                {errorMsg && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {/* HONEYPOT FIELD FOR BOT PROTECTION */}
+                <div className="hidden" aria-hidden="true">
+                  <label>Ne plenigu ĉi tiun kampon:</label>
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    value={botField}
+                    onChange={(e) => setBotField(e.target.value)}
+                    autoComplete="off"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -168,13 +275,13 @@ export default function JoinPage() {
 
                   <div>
                     <label className="block text-[10px] font-bold text-stone-600 uppercase tracking-widest mb-1">
-                      Lingvoj (komo-separitaj)
+                      Pasvorto (por Ensalutado)
                     </label>
                     <input
-                      type="text"
-                      placeholder="eo, en, es, fr"
-                      value={languages}
-                      onChange={(e) => setLanguages(e.target.value)}
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-4 py-3 border border-stone-300 focus:border-green-700 outline-none text-xs bg-[#fcfaf7]"
                     />
                   </div>
@@ -193,13 +300,33 @@ export default function JoinPage() {
                   />
                 </div>
 
+                {/* SECURITY CHALLENGE FOR BOT & SPAM DUMPING PROTECTION */}
+                <div className="p-4 bg-stone-100 border border-stone-300 space-y-2">
+                  <div className="flex items-center gap-1.5 text-stone-900 text-xs font-bold uppercase tracking-wider">
+                    <Lock className="w-4 h-4 text-green-700" />
+                    <span>Sekureca Kontrolo / Anti-Spam Protection</span>
+                  </div>
+                  <p className="text-xs text-stone-600">
+                    Por protekti la datumbazon kontraŭ senutila spamo kaj robotoj, kiom estas <strong>4 + 3</strong>?
+                  </p>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Entajpu la sekurecan ciferon (ekz. 7)"
+                    value={securityAnswer}
+                    onChange={(e) => setSecurityAnswer(e.target.value)}
+                    className="w-full px-4 py-2 border border-stone-300 focus:border-green-700 outline-none text-xs bg-white font-bold"
+                  />
+                </div>
+
                 <div className="pt-4 border-t border-stone-200 flex items-center justify-end">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto px-8 py-3.5 bg-green-700 hover:bg-green-800 text-white font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-green-700 hover:bg-green-800 text-white font-bold text-xs uppercase tracking-wider cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <UserPlus className="w-4 h-4" />
-                    <span>Konservi kaj Aliĝi</span>
+                    <span>{isSubmitting ? 'Konservas...' : 'Konservi en Firestore'}</span>
                   </button>
                 </div>
               </form>
@@ -212,7 +339,6 @@ export default function JoinPage() {
       <RegisterModal
         isOpen={registerOpen}
         onClose={() => setRegisterOpen(false)}
-        onAddMember={() => {}}
       />
 
       <Footer />

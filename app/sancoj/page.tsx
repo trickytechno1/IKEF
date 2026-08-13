@@ -6,7 +6,8 @@ import Footer from '@/components/Footer';
 import RegisterModal from '@/components/RegisterModal';
 import OpportunityModal from '@/components/OpportunityModal';
 import { useLanguage } from '@/context/LanguageContext';
-import { FEATURED_OPPORTUNITIES, OpportunityItem } from '@/lib/data';
+import { useAuth } from '@/context/AuthContext';
+import { OpportunityItem } from '@/lib/data';
 import {
   Briefcase,
   Building,
@@ -21,16 +22,18 @@ import {
 
 export default function OpportunitiesPage() {
   const { lang, t } = useLanguage();
+  const { opportunities: realTimeOpps } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('Ĉiuj');
   const [selectedOpp, setSelectedOpp] = useState<OpportunityItem | null>(null);
 
   const types = ['Ĉiuj', 'Contract', 'Trial', 'Scholarship', 'Exchange'];
 
-  const filteredOpps = FEATURED_OPPORTUNITIES.filter((opp) => {
+  const filteredOpps = realTimeOpps.filter((opp) => {
     if (selectedType === 'Ĉiuj') return true;
     return opp.type === selectedType;
   });
+
 
   return (
     <div className="min-h-screen bg-[#fcfaf7] text-stone-900 flex flex-col font-sans selection:bg-green-100">
@@ -71,7 +74,7 @@ export default function OpportunitiesPage() {
               </div>
 
               <button
-                onClick={() => setSelectedOpp(FEATURED_OPPORTUNITIES[0])}
+                onClick={() => setSelectedOpp(realTimeOpps[0] || null)}
                 className="px-6 py-3.5 bg-green-700 hover:bg-green-600 text-white font-bold text-xs uppercase tracking-wider transition-all shrink-0 cursor-pointer"
               >
                 Legu Detalojn & Kandidatiĝu →
